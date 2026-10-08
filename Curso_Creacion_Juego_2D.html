@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso Paso a Paso: Juego Plataformero 2D en Unity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --border-color: rgba(255,255,255,0.08);
+            --border-glow: rgba(56,189,248,0.25);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-cyan: #38bdf8;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --code-bg: #070a12;
+            --sidebar-w: 310px;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;scroll-behavior:smooth}
+        body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg-main);color:var(--text-main);line-height:1.7;display:flex;min-height:100vh;overflow-x:hidden;background-image:radial-gradient(circle at 15% 10%,rgba(56,189,248,.06) 0%,transparent 40%),radial-gradient(circle at 85% 70%,rgba(168,85,247,.06) 0%,transparent 40%)}
+
+        /* SIDEBAR */
+        aside.sidebar{width:var(--sidebar-w);background:rgba(11,15,25,.94);backdrop-filter:blur(16px);border-right:1px solid var(--border-color);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;padding:1.5rem 1rem;z-index:100}
+        .sb-brand{display:flex;align-items:center;gap:.7rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border-color)}
+        .sb-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;color:#fff;box-shadow:0 4px 15px rgba(56,189,248,.3)}
+        .sb-brand h2{font-size:.95rem;font-weight:700;color:#fff}
+        .sb-brand p{font-size:.7rem;color:var(--accent-cyan);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+        .ng{margin-bottom:1.4rem}
+        .ng-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:.55rem;padding-left:.4rem;font-weight:700}
+        .nl{display:flex;align-items:center;gap:.5rem;padding:.45rem .65rem;color:#cbd5e1;text-decoration:none;font-size:.82rem;border-radius:7px;transition:all .2s;font-weight:500;margin-bottom:.15rem}
+        .nl:hover{color:#fff;background:rgba(255,255,255,.05);transform:translateX(3px)}
+        .nl.active{color:var(--accent-cyan);background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);font-weight:600}
+        .nn{font-size:.68rem;font-weight:700;background:rgba(255,255,255,.08);padding:.12rem .35rem;border-radius:4px;color:var(--text-muted);min-width:22px;text-align:center}
+
+        /* MAIN */
+        main.content{margin-left:var(--sidebar-w);flex:1;padding:2.5rem 4rem;max-width:1100px}
+
+        /* HERO */
+        .hero{background:linear-gradient(180deg,rgba(30,41,59,.5) 0%,rgba(15,23,42,.3) 100%);border:1px solid var(--border-color);border-radius:18px;padding:2.5rem;margin-bottom:3rem;position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.4)}
+        .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(56,189,248,.08) 0%,transparent 60%);pointer-events:none}
+        .hero-tag{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .7rem;border-radius:9999px;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:var(--accent-cyan);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+        .hero h1{font-size:2.3rem;font-weight:800;line-height:1.2;letter-spacing:-.03em;margin-bottom:1rem;background:linear-gradient(135deg,#fff 40%,var(--accent-cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero p{font-size:1.05rem;color:var(--text-muted);max-width:800px;line-height:1.7}
+
+        /* MODULE */
+        section.mod{margin-bottom:3.5rem;scroll-margin-top:2rem}
+        .mod-hdr{display:flex;align-items:center;gap:.85rem;margin-bottom:1.3rem;padding-bottom:.85rem;border-bottom:1px solid var(--border-color)}
+        .mod-badge{width:36px;height:36px;border-radius:9px;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.3);color:var(--accent-cyan);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;flex-shrink:0}
+        .mod-title h2{font-size:1.45rem;font-weight:700;letter-spacing:-.02em}
+        .mod-title span{font-size:.78rem;color:var(--text-muted);font-weight:500}
+
+        /* CARD */
+        .card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;backdrop-filter:blur(12px)}
+        .card:hover{border-color:var(--border-glow)}
+        .card h3{font-size:1.15rem;font-weight:700;margin-bottom:.6rem;color:#fff}
+        .card>p,.card>div>p{color:#cbd5e1;margin-bottom:.85rem;font-size:.93rem}
+
+        /* INSTRUCCIONES PASO A PASO */
+        .instruccion{position:relative;padding:.85rem 1rem .85rem 3.2rem;margin:.65rem 0;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;border-left:3px solid var(--accent-cyan);font-size:.9rem;color:#e2e8f0;transition:background .15s}
+        .instruccion:hover{background:rgba(255,255,255,.04)}
+        .instruccion::before{content:attr(data-n);position:absolute;left:.65rem;top:.8rem;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-blue));color:#0b0f19;font-weight:800;font-size:.75rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(56,189,248,.35)}
+        .instruccion strong{color:#fff}
+        .instruccion code{background:rgba(56,189,248,.12);color:var(--accent-cyan);padding:.1rem .35rem;border-radius:4px;font-family:'Fira Code',monospace;font-size:.82rem;white-space:nowrap}
+
+        /* RUTA (breadcrumb visual) */
+        .ruta{display:inline-flex;align-items:center;gap:.3rem;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:.2rem .6rem;font-family:'Fira Code',monospace;font-size:.78rem;color:var(--accent-amber);margin:.2rem 0;flex-wrap:wrap}
+        .ruta span{color:var(--text-muted)}
+
+        /* ALERTA */
+        .alerta{display:flex;gap:.85rem;padding:1.1rem;border-radius:10px;margin:1rem 0;font-size:.88rem;line-height:1.6}
+        .alerta-info{background:rgba(56,189,248,.07);border:1px solid rgba(56,189,248,.22);color:#bae6fd}
+        .alerta-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);color:#fde68a}
+        .alerta-ok{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.22);color:#bbf7d0}
+        .alerta-danger{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.22);color:#fca5a5}
+        .ai{font-size:1.3rem;line-height:1;flex-shrink:0}
+
+        /* UNITY INSPECTOR MOCK */
+        .insp{background:#1e1e1e;border:1px solid #333;border-radius:8px;padding:.85rem;font-family:'Segoe UI',system-ui,sans-serif;margin:.85rem 0;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+        .insp-h{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:#ccc;font-weight:700;padding-bottom:.4rem;border-bottom:1px solid #333;margin-bottom:.55rem;text-transform:uppercase;letter-spacing:.03em}
+        .insp-r{display:flex;align-items:center;justify-content:space-between;padding:.3rem 0;font-size:.8rem;border-bottom:1px solid #282828}
+        .insp-l{color:#aaa;font-weight:500}
+        .insp-v{background:#2a2a2a;border:1px solid #444;color:#eee;padding:.18rem .45rem;border-radius:4px;font-size:.78rem;font-family:'Fira Code',monospace}
+        .insp-v.hl{border-color:var(--accent-cyan);color:var(--accent-cyan);background:rgba(56,189,248,.1)}
+        .insp-v.red{border-color:var(--accent-red);color:var(--accent-red);background:rgba(239,68,68,.1)}
+
+        /* CODE */
+        .code-box{background:var(--code-bg);border:1px solid var(--border-color);border-radius:10px;margin:.85rem 0;overflow:hidden}
+        .code-hdr{display:flex;align-items:center;justify-content:space-between;padding:.5rem .85rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border-color);font-size:.72rem;color:var(--text-muted);font-family:'Fira Code',monospace}
+        .cbtn{background:rgba(255,255,255,.06);border:1px solid var(--border-color);color:#cbd5e1;padding:.2rem .5rem;border-radius:5px;font-size:.7rem;cursor:pointer;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600}
+        .cbtn:hover{background:var(--accent-cyan);color:#0b0f19;border-color:var(--accent-cyan)}
+        pre{padding:1.1rem;overflow-x:auto;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.65;color:#e2e8f0}
+        .kw{color:#f472b6;font-weight:600}.typ{color:#38bdf8;font-weight:500}.fn{color:#fbbf24}.str{color:#a3e635}.num{color:#c084fc}.cm{color:#64748b;font-style:italic}
+
+        /* TABLE */
+        table.dt{width:100%;border-collapse:collapse;margin:.85rem 0;font-size:.85rem}
+        .dt th,.dt td{padding:.6rem .85rem;border:1px solid var(--border-color);text-align:left}
+        .dt th{background:rgba(255,255,255,.04);color:#fff;font-weight:700}
+        .dt tr:nth-child(even){background:rgba(255,255,255,.015)}
+
+        /* BADGE */
+        .badge{display:inline-block;padding:.15rem .45rem;border-radius:5px;font-size:.72rem;font-weight:700}
+        .b-cyan{background:rgba(56,189,248,.15);color:var(--accent-cyan);border:1px solid rgba(56,189,248,.3)}
+        .b-purple{background:rgba(168,85,247,.15);color:var(--accent-purple);border:1px solid rgba(168,85,247,.3)}
+        .b-amber{background:rgba(245,158,11,.15);color:var(--accent-amber);border:1px solid rgba(245,158,11,.3)}
+        .b-green{background:rgba(34,197,94,.15);color:var(--accent-green);border:1px solid rgba(34,197,94,.3)}
+
+        /* SEPARATOR */
+        .sep{height:1px;background:var(--border-color);margin:1.5rem 0}
+
+        @media(max-width:1024px){aside.sidebar{display:none}main.content{margin-left:0;padding:1.5rem 1.2rem}}
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sb-brand"><div class="sb-icon">2D</div><div><h2>Plataformero 2D</h2><p>Unity + C# • Paso a Paso</p></div></div>
+    <div class="ng">
+        <div class="ng-title">Preparación</div>
+        <a href="#inicio" class="nl active"><span class="nn">00</span> Requisitos Iniciales</a>
+        <a href="#paso1" class="nl"><span class="nn">01</span> Crear el Proyecto</a>
+        <a href="#paso2" class="nl"><span class="nn">02</span> Importar Sprites</a>
+    </div>
+    <div class="ng">
+        <div class="ng-title">Configuración Visual</div>
+        <a href="#paso3" class="nl"><span class="nn">03</span> Pixel Perfect en Sprites</a>
+        <a href="#paso4" class="nl"><span class="nn">04</span> Recortar Sprite Sheets</a>
+        <a href="#paso5" class="nl"><span class="nn">05</span> Crear Tiles y Paleta</a>
+        <a href="#paso6" class="nl"><span class="nn">06</span> Pintar el Escenario</a>
+        <a href="#paso7" class="nl"><span class="nn">07</span> Colisión del Suelo</a>
+    </div>
+    <div class="ng">
+        <div class="ng-title">El Jugador</div>
+        <a href="#paso8" class="nl"><span class="nn">08</span> Crear el Player</a>
+        <a href="#paso9" class="nl"><span class="nn">09</span> Rigidbody2D y Collider</a>
+        <a href="#paso10" class="nl"><span class="nn">10</span> Calibrar la Cámara</a>
+    </div>
+    <div class="ng">
+        <div class="ng-title">Animaciones</div>
+        <a href="#paso11" class="nl"><span class="nn">11</span> Crear Animaciones</a>
+        <a href="#paso12" class="nl"><span class="nn">12</span> Animator Controller</a>
+    </div>
+    <div class="ng">
+        <div class="ng-title">Programación C#</div>
+        <a href="#paso13" class="nl"><span class="nn">13</span> Input System</a>
+        <a href="#paso14" class="nl"><span class="nn">14</span> Script MovePlayer</a>
+        <a href="#paso15" class="nl"><span class="nn">15</span> Script ChecaColision</a>
+        <a href="#paso16" class="nl"><span class="nn">16</span> Conectar Scripts</a>
+        <a href="#final" class="nl"><span class="nn">✓</span> Prueba Final</a>
+    </div>
+</aside>
+
+<main class="content">
+
+<header class="hero" id="inicio">
+    <div class="hero-tag">Tutorial Instrucción por Instrucción</div>
+    <h1>Crea tu Plataformero 2D desde Cero</h1>
+    <p>Cada paso te dice <strong>exactamente</strong> qué menú abrir, dónde hacer clic, qué arrastrar y qué valor escribir. No se asume nada. Síguelo como receta de cocina.</p>
+</header>
+
+<!-- ============ PASO 1 ============ -->
+<section class="mod" id="paso1">
+    <div class="mod-hdr"><div class="mod-badge">01</div><div class="mod-title"><h2>Crear el Proyecto en Unity Hub</h2><span>Desde cero, sin nada abierto</span></div></div>
+    <div class="card">
+        <h3>Instrucciones exactas:</h3>
+        <div class="instruccion" data-n="1">Abre <strong>Unity Hub</strong> (el lanzador azul de Unity, no el editor).</div>
+        <div class="instruccion" data-n="2">En la barra lateral izquierda, haz clic en <strong>Projects</strong>.</div>
+        <div class="instruccion" data-n="3">Arriba a la derecha, haz clic en el botón azul <strong>New Project</strong>.</div>
+        <div class="instruccion" data-n="4">En la lista de plantillas del lado izquierdo, selecciona <strong>2D (URP)</strong> — es la que tiene un ícono de un cuadrado con colores.</div>
+        <div class="instruccion" data-n="5">En el campo <strong>Project Name</strong> (arriba a la derecha) escribe: <code>Prueba-1</code></div>
+        <div class="instruccion" data-n="6">En <strong>Location</strong>, haz clic en los tres puntos <code>...</code> y navega hasta tu carpeta de la materia.</div>
+        <div class="instruccion" data-n="7">Haz clic en el botón azul <strong>Create Project</strong>. Espera 2-5 minutos a que Unity cargue.</div>
+
+        <div class="alerta alerta-info"><div class="ai">💡</div><div>Cuando termine de cargar verás el editor de Unity con una escena vacía llamada <strong>SampleScene</strong>. Esa es tu área de trabajo.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 2 ============ -->
+<section class="mod" id="paso2">
+    <div class="mod-hdr"><div class="mod-badge">02</div><div class="mod-title"><h2>Importar los Sprites del Personaje</h2><span>Meter las imágenes dentro de Unity</span></div></div>
+    <div class="card">
+        <h3>Traer la imagen Player.png al proyecto:</h3>
+        <div class="instruccion" data-n="1">En Unity, mira la ventana de abajo llamada <strong>Project</strong>. Ahí ves la carpeta <code>Assets</code>.</div>
+        <div class="instruccion" data-n="2">Haz <strong>clic derecho</strong> en el espacio vacío dentro de <code>Assets</code> ➜ selecciona <strong>Create</strong> ➜ <strong>Folder</strong>. Nómbrala <code>Sprites</code>.</div>
+        <div class="instruccion" data-n="3">Haz <strong>doble clic</strong> en la carpeta <code>Sprites</code> para entrar en ella.</div>
+        <div class="instruccion" data-n="4">Ahora abre el <strong>Explorador de Archivos de Windows</strong> (tecla Windows + E). Navega hasta donde tengas tu imagen <code>Player.png</code> (la hoja de sprites del personaje).</div>
+        <div class="instruccion" data-n="5"><strong>Arrastra</strong> el archivo <code>Player.png</code> desde el Explorador de Windows directamente hacia la ventana <strong>Project</strong> de Unity, dentro de la carpeta <code>Sprites</code>.</div>
+        <div class="instruccion" data-n="6">Espera un par de segundos. Verás que aparece un ícono de imagen dentro de la carpeta. ¡Ya está importada!</div>
+
+        <div class="alerta alerta-warn"><div class="ai">⚠️</div><div><strong>¿No tienes imagen?</strong> Si estás usando el paquete <em>Pixel Adventure 1</em>, ya incluye personajes. Puedes usarlos desde <code>Assets ➜ Pixel Adventure 1 ➜ Assets ➜ Main Characters</code>.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 3 ============ -->
+<section class="mod" id="paso3">
+    <div class="mod-hdr"><div class="mod-badge">03</div><div class="mod-title"><h2>Configurar Sprites para Pixel Art Nítido</h2><span>Eliminar el desenfoque y los píxeles borrosos</span></div></div>
+    <div class="card">
+        <h3>¿Por qué se ven borrosos los sprites?</h3>
+        <p>Porque Unity usa un filtro "Bilinear" que suaviza los bordes. Para pixel art necesitas "Point" que muestra cada píxel tal cual, nítido y cuadrado.</p>
+
+        <div class="sep"></div>
+        <h3>Instrucciones exactas para CADA imagen:</h3>
+
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, navega a la carpeta <code>Sprites</code>.</div>
+        <div class="instruccion" data-n="2">Haz <strong>un solo clic</strong> sobre el archivo <code>Player.png</code> (NO doble clic, solo un clic para seleccionarlo).</div>
+        <div class="instruccion" data-n="3">Mira la ventana <strong>Inspector</strong> del lado derecho. Ahí aparecen las propiedades de la imagen.</div>
+        <div class="instruccion" data-n="4">Busca el campo <strong>Texture Type</strong>. Confirma que diga <code>Sprite (2D and UI)</code>. Si no, cámbialo con el menú desplegable.</div>
+        <div class="instruccion" data-n="5">Busca el campo <strong>Sprite Mode</strong>. Si tu imagen tiene VARIOS personajes o frames en una sola hoja, cámbialo a <code>Multiple</code>.</div>
+        <div class="instruccion" data-n="6">Busca el campo <strong>Pixels Per Unit</strong>. Déjalo en <code>100</code>.</div>
+        <div class="instruccion" data-n="7">Busca el campo <strong>Filter Mode</strong>. Haz clic en el menú desplegable y cámbialo de <code>Bilinear</code> a <code>Point (no filter)</code>.</div>
+        <div class="instruccion" data-n="8">Busca el campo <strong>Compression</strong>. Cámbialo a <code>None</code>.</div>
+        <div class="instruccion" data-n="9">Haz clic en el botón <strong>Apply</strong> que está abajo a la derecha del Inspector. Es un botón que dice "Apply". Si no lo presionas, los cambios no se guardan.</div>
+
+        <div class="insp">
+            <div class="insp-h">Inspector ➜ Player.png (Así debe quedar)</div>
+            <div class="insp-r"><span class="insp-l">Texture Type</span><span class="insp-v">Sprite (2D and UI)</span></div>
+            <div class="insp-r"><span class="insp-l">Sprite Mode</span><span class="insp-v">Multiple</span></div>
+            <div class="insp-r"><span class="insp-l">Pixels Per Unit</span><span class="insp-v">100</span></div>
+            <div class="insp-r"><span class="insp-l">Filter Mode</span><span class="insp-v hl">Point (no filter) ← ¡CLAVE!</span></div>
+            <div class="insp-r"><span class="insp-l">Compression</span><span class="insp-v hl">None</span></div>
+        </div>
+
+        <div class="alerta alerta-danger"><div class="ai">🔴</div><div><strong>Repite este proceso para CADA imagen que importes:</strong> <code>Player.png</code>, <code>EnemyIdle.png</code>, <code>EnemyWalk.png</code>, y cualquier otra. Si no lo haces, esas imágenes se verán borrosas.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 4 ============ -->
+<section class="mod" id="paso4">
+    <div class="mod-hdr"><div class="mod-badge">04</div><div class="mod-title"><h2>Recortar el Sprite Sheet en el Sprite Editor</h2><span>Separar cada frame de animación individual</span></div></div>
+    <div class="card">
+        <h3>¿Por qué recortar?</h3>
+        <p>Tu archivo <code>Player.png</code> es una sola imagen con TODOS los frames del personaje (caminando arriba, abajo, izquierda, derecha). Necesitas decirle a Unity dónde empieza y termina cada frame.</p>
+        <div class="sep"></div>
+
+        <div class="instruccion" data-n="1">Selecciona <code>Player.png</code> con un clic en la ventana <strong>Project</strong>.</div>
+        <div class="instruccion" data-n="2">En el <strong>Inspector</strong> (derecha), busca el botón que dice <strong>Sprite Editor</strong>. Haz clic en él. Se abrirá una ventana nueva.</div>
+        <div class="instruccion" data-n="3">En la esquina superior izquierda de la ventana Sprite Editor, haz clic en el botón <strong>Slice</strong> (tiene ícono de tijeras).</div>
+        <div class="instruccion" data-n="4">Se abrirá un menú desplegable. Configúralo así:
+            <br>• <strong>Type:</strong> selecciona <code>Grid By Cell Size</code>
+            <br>• <strong>Pixel Size X:</strong> escribe <code>20</code> (o el ancho de cada frame de tu personaje)
+            <br>• <strong>Pixel Size Y:</strong> escribe <code>28</code> (o el alto de cada frame)
+        </div>
+        <div class="instruccion" data-n="5">Haz clic en el botón <strong>Slice</strong> dentro de ese menú desplegable. Verás que aparecen rectángulos azules sobre cada frame del personaje.</div>
+        <div class="instruccion" data-n="6">Verifica visualmente que cada rectángulo azul encierre UN solo frame. Si alguno corta mal, puedes arrastar las esquinas para ajustarlo.</div>
+        <div class="instruccion" data-n="7">Arriba a la derecha de la ventana Sprite Editor, haz clic en <strong>Apply</strong>.</div>
+        <div class="instruccion" data-n="8">Cierra la ventana del Sprite Editor (la X de esa ventana).</div>
+        <div class="instruccion" data-n="9">Ahora, en la ventana <strong>Project</strong>, haz clic en la flechita <code>▶</code> a la izquierda de <code>Player.png</code>. Deberías ver todos los sprites individuales: <code>Player_0</code>, <code>Player_1</code>, <code>Player_2</code>, etc.</div>
+
+        <div class="alerta alerta-ok"><div class="ai">✅</div><div>¡Ya tienes cada frame individual! Ahora podrás usarlos para crear animaciones.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 5 ============ -->
+<section class="mod" id="paso5">
+    <div class="mod-hdr"><div class="mod-badge">05</div><div class="mod-title"><h2>Crear la Paleta de Tiles para el Escenario</h2><span>Preparar las baldosas del piso</span></div></div>
+    <div class="card">
+        <h3>Instrucciones exactas:</h3>
+        <div class="instruccion" data-n="1">En el menú superior de Unity, haz clic en <strong>Window</strong> ➜ <strong>2D</strong> ➜ <strong>Tile Palette</strong>. Se abrirá una ventana flotante.</div>
+        <div class="instruccion" data-n="2">En la ventana <strong>Tile Palette</strong>, haz clic en el botón <strong>Create New Palette</strong>.</div>
+        <div class="instruccion" data-n="3">En el campo <strong>Name</strong> escribe: <code>Terreno</code>.</div>
+        <div class="instruccion" data-n="4">Deja <strong>Grid</strong> en <code>Rectangle</code> y <strong>Cell Size</strong> en <code>Automatic</code>.</div>
+        <div class="instruccion" data-n="5">Haz clic en <strong>Create</strong>. Te pedirá dónde guardarla. Crea una carpeta llamada <code>Paleta</code> dentro de <code>Assets</code> y guárdala ahí.</div>
+        <div class="instruccion" data-n="6">Ahora, en la ventana <strong>Project</strong>, navega hasta tu imagen de terreno. Si usas Pixel Adventure 1, está en:
+            <div class="ruta">Assets <span>➜</span> Pixel Adventure 1 <span>➜</span> Assets <span>➜</span> Terrain <span>➜</span> Terrain Sliced (16x16).png</div>
+        </div>
+        <div class="instruccion" data-n="7"><strong>Arrastra</strong> esa imagen completa desde la ventana <strong>Project</strong> y <strong>suéltala</strong> dentro de la ventana <strong>Tile Palette</strong> (en el cuadro gris).</div>
+        <div class="instruccion" data-n="8">Te pedirá dónde guardar los Tiles. Crea una carpeta <code>Tiles</code> dentro de <code>Assets</code> y guárdalos ahí. Espera unos segundos.</div>
+        <div class="instruccion" data-n="9">¡Ahora verás todas las baldosas del terreno en la paleta! Puedes hacer scroll para ver más.</div>
+    </div>
+</section>
+
+<!-- ============ PASO 6 ============ -->
+<section class="mod" id="paso6">
+    <div class="mod-hdr"><div class="mod-badge">06</div><div class="mod-title"><h2>Pintar el Escenario con el Tilemap</h2><span>Dibujar el piso y las plataformas</span></div></div>
+    <div class="card">
+        <h3>Crear el Tilemap (el lienzo para pintar):</h3>
+        <div class="instruccion" data-n="1">En la ventana <strong>Hierarchy</strong> (izquierda), haz <strong>clic derecho</strong> en un espacio vacío.</div>
+        <div class="instruccion" data-n="2">Selecciona <strong>2D Object</strong> ➜ <strong>Tilemap</strong> ➜ <strong>Rectangular</strong>.</div>
+        <div class="instruccion" data-n="3">Se creará un objeto llamado <strong>Grid</strong> con un hijo llamado <strong>Tilemap</strong>. Renombra el hijo: haz clic derecho sobre "Tilemap" ➜ <strong>Rename</strong> ➜ escribe <code>Piso</code>.</div>
+
+        <div class="sep"></div>
+        <h3>Ajustar el tamaño de celda del Grid:</h3>
+        <div class="instruccion" data-n="4">Haz <strong>un clic</strong> sobre el objeto <strong>Grid</strong> en la Hierarchy.</div>
+        <div class="instruccion" data-n="5">En el <strong>Inspector</strong> (derecha), busca el componente <strong>Grid</strong>.</div>
+        <div class="instruccion" data-n="6">En <strong>Cell Size</strong>, cambia los valores a: <code>X = 0.16</code> , <code>Y = 0.16</code> , <code>Z = 0</code>.</div>
+
+        <div class="alerta alerta-info"><div class="ai">💡</div><div><strong>¿Por qué 0.16?</strong> Porque tus baldosas miden 16 píxeles y el PPU es 100. Entonces: 16 ÷ 100 = 0.16 unidades de Unity por baldosa.</div></div>
+
+        <div class="sep"></div>
+        <h3>Pintar el suelo con la brocha:</h3>
+        <div class="instruccion" data-n="7">Abre la ventana <strong>Tile Palette</strong> (si la cerraste: <code>Window ➜ 2D ➜ Tile Palette</code>).</div>
+        <div class="instruccion" data-n="8">En la paleta, haz clic en la baldosa de terreno que quieras usar (ej. una baldosa verde con pasto).</div>
+        <div class="instruccion" data-n="9">Asegúrate de que la herramienta seleccionada sea el <strong>Pincel</strong> (ícono de brocha, es la primera herramienta en la barra de la Tile Palette).</div>
+        <div class="instruccion" data-n="10">Asegúrate de que abajo en la paleta, en <strong>Active Tilemap</strong>, diga <code>Piso</code>.</div>
+        <div class="instruccion" data-n="11">Ahora ve a la ventana <strong>Scene</strong> (la vista principal del editor) y <strong>haz clic y arrastra</strong> para pintar baldosas en línea horizontal. Pinta una fila larga como suelo.</div>
+        <div class="instruccion" data-n="12">Puedes agregar plataformas más arriba pintando bloques sueltos en el aire para que el jugador salte entre ellos.</div>
+    </div>
+</section>
+
+<!-- ============ PASO 7 ============ -->
+<section class="mod" id="paso7">
+    <div class="mod-hdr"><div class="mod-badge">07</div><div class="mod-title"><h2>Agregar Colisión Sólida al Suelo</h2><span>Para que el jugador no atraviese el piso</span></div></div>
+    <div class="card">
+        <h3>Sin esto, el personaje cae al vacío infinito:</h3>
+        <div class="instruccion" data-n="1">En la <strong>Hierarchy</strong>, haz clic en el objeto <strong>Piso</strong> (el hijo de Grid).</div>
+        <div class="instruccion" data-n="2">En el <strong>Inspector</strong> (derecha), baja hasta el final y haz clic en <strong>Add Component</strong>.</div>
+        <div class="instruccion" data-n="3">En el buscador que aparece, escribe <code>Tilemap Collider 2D</code> y selecciónalo de la lista.</div>
+        <div class="instruccion" data-n="4">Ahora en el componente que se agregó, busca la casilla <strong>Used By Composite</strong> y <strong>márcala</strong> (haz clic en el checkbox).</div>
+        <div class="instruccion" data-n="5">Haz clic otra vez en <strong>Add Component</strong>. Escribe <code>Composite Collider 2D</code> y selecciónalo.</div>
+        <div class="instruccion" data-n="6">Esto creará automáticamente un componente <strong>Rigidbody2D</strong> también. Búscalo en el Inspector.</div>
+        <div class="instruccion" data-n="7">En el <strong>Rigidbody2D</strong> del Piso, cambia <strong>Body Type</strong> de <code>Dynamic</code> a <code>Static</code>.</div>
+
+        <div class="alerta alerta-danger"><div class="ai">🔴</div><div><strong>¡IMPORTANTÍSIMO!</strong> Si no cambias el Body Type a Static, ¡el suelo se caerá por gravedad cuando le des Play! El piso debe ser estático porque no se mueve.</div></div>
+
+        <div class="insp">
+            <div class="insp-h">Inspector del objeto "Piso" (Así debe quedar)</div>
+            <div class="insp-r"><span class="insp-l">Tilemap Collider 2D</span><span class="insp-v">✅ Used By Composite</span></div>
+            <div class="insp-r"><span class="insp-l">Composite Collider 2D</span><span class="insp-v">Agregado</span></div>
+            <div class="insp-r"><span class="insp-l">Rigidbody2D ➜ Body Type</span><span class="insp-v hl">Static</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ PASO 8 ============ -->
+<section class="mod" id="paso8">
+    <div class="mod-hdr"><div class="mod-badge">08</div><div class="mod-title"><h2>Crear el GameObject del Jugador</h2><span>Poner al personaje en la escena</span></div></div>
+    <div class="card">
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, navega a la carpeta <code>Sprites</code>.</div>
+        <div class="instruccion" data-n="2">Haz clic en la flechita <code>▶</code> de <code>Player.png</code> para expandir los sub-sprites.</div>
+        <div class="instruccion" data-n="3"><strong>Arrastra</strong> el primer sprite (ej. <code>Player_0</code>) desde la ventana Project hacia la ventana <strong>Scene</strong> (la vista central).</div>
+        <div class="instruccion" data-n="4">Se creará un objeto en la <strong>Hierarchy</strong>. Renómbralo: haz clic derecho ➜ <strong>Rename</strong> ➜ escribe <code>Player</code>.</div>
+        <div class="instruccion" data-n="5">Con el objeto <code>Player</code> seleccionado, mira el <strong>Inspector</strong>. Busca el campo <strong>Tag</strong> (arriba, debajo del nombre). Haz clic en el desplegable y selecciona <code>Player</code>.</div>
+
+        <div class="alerta alerta-warn"><div class="ai">⚠️</div><div><strong>¿No aparece "Player" en la lista de Tags?</strong> Haz clic en <strong>Add Tag...</strong>, luego en el <code>+</code> de Tags, escribe <code>Player</code> y haz clic en <strong>Save</strong>. Después regresa al objeto y selecciona el tag recién creado.</div></div>
+
+        <div class="instruccion" data-n="6">Usa la herramienta <strong>Move</strong> (tecla <code>W</code>) para posicionar al personaje <strong>arriba del suelo</strong> que pintaste. Que sus pies estén justo encima de las baldosas.</div>
+    </div>
+</section>
+
+<!-- ============ PASO 9 ============ -->
+<section class="mod" id="paso9">
+    <div class="mod-hdr"><div class="mod-badge">09</div><div class="mod-title"><h2>Agregar Rigidbody2D y BoxCollider2D al Player</h2><span>Darle física y cuerpo sólido al personaje</span></div></div>
+    <div class="card">
+        <h3>Agregar componentes de física:</h3>
+        <div class="instruccion" data-n="1">Haz clic en el objeto <strong>Player</strong> en la Hierarchy.</div>
+        <div class="instruccion" data-n="2">En el <strong>Inspector</strong>, baja y haz clic en <strong>Add Component</strong>.</div>
+        <div class="instruccion" data-n="3">Escribe <code>Rigidbody 2D</code> en el buscador y selecciónalo.</div>
+        <div class="instruccion" data-n="4">En el componente <strong>Rigidbody 2D</strong> que se agregó, configura:
+            <br>• <strong>Mass:</strong> cambia de <code>1</code> a <code>1</code> (déjalo en 1)
+            <br>• <strong>Gravity Scale:</strong> cambia a <code>2.5</code>
+            <br>• <strong>Collision Detection:</strong> cambia a <code>Continuous</code>
+            <br>• <strong>Constraints:</strong> expande esta sección y marca <strong>Freeze Rotation Z</strong>
+        </div>
+
+        <div class="insp">
+            <div class="insp-h">Rigidbody 2D del Player</div>
+            <div class="insp-r"><span class="insp-l">Body Type</span><span class="insp-v">Dynamic</span></div>
+            <div class="insp-r"><span class="insp-l">Mass</span><span class="insp-v">1</span></div>
+            <div class="insp-r"><span class="insp-l">Gravity Scale</span><span class="insp-v hl">2.5</span></div>
+            <div class="insp-r"><span class="insp-l">Collision Detection</span><span class="insp-v hl">Continuous</span></div>
+            <div class="insp-r"><span class="insp-l">Constraints ➜ Freeze Rotation Z</span><span class="insp-v hl">✅ Marcado</span></div>
+        </div>
+
+        <div class="instruccion" data-n="5">Haz clic de nuevo en <strong>Add Component</strong>.</div>
+        <div class="instruccion" data-n="6">Escribe <code>Box Collider 2D</code> y selecciónalo.</div>
+        <div class="instruccion" data-n="7">En el componente <strong>Box Collider 2D</strong>, haz clic en <strong>Edit Collider</strong> (el botón con ícono de lápiz verde). En la Scene, verás un rectángulo verde alrededor del sprite. Arrastra las manijas verdes para ajustarlo exactamente al cuerpo del personaje.</div>
+
+        <div class="alerta alerta-info"><div class="ai">💡</div><div><strong>¿Por qué Freeze Rotation Z?</strong> Sin esto, cuando el personaje choque con una esquina del suelo, girará como una pelota de fútbol rodando. Congelando la rotación Z, el personaje siempre se mantiene parado derecho.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 10 ============ -->
+<section class="mod" id="paso10">
+    <div class="mod-hdr"><div class="mod-badge">10</div><div class="mod-title"><h2>Calibrar la Cámara para que se vea bien</h2><span>Solucionar el problema de "todo se ve diminuto"</span></div></div>
+    <div class="card">
+        <h3>¿Por qué se ve todo tan pequeño?</h3>
+        <p>La cámara tiene un "tamaño ortográfico" demasiado grande (por defecto es 5). Esto significa que está mostrando demasiado espacio del mundo, haciendo que los sprites de 16 píxeles se vean como hormigas.</p>
+
+        <div class="sep"></div>
+        <h3>Instrucciones exactas:</h3>
+        <div class="instruccion" data-n="1">En la <strong>Hierarchy</strong>, haz clic en el objeto <strong>Main Camera</strong>.</div>
+        <div class="instruccion" data-n="2">En el <strong>Inspector</strong>, busca el componente <strong>Camera</strong>.</div>
+        <div class="instruccion" data-n="3">Confirma que <strong>Projection</strong> diga <code>Orthographic</code> (si dice Perspective, cámbialo).</div>
+        <div class="instruccion" data-n="4">Busca el campo <strong>Size</strong> (o "Orthographic Size"). Cambia el número de <code>5</code> a <code>1.35</code>.</div>
+        <div class="instruccion" data-n="5">Ahora busca <strong>Clear Flags</strong> (o "Background Type"). Cámbialo a <code>Solid Color</code>.</div>
+        <div class="instruccion" data-n="6">Haz clic en el cuadro de color de <strong>Background</strong> y selecciona un <strong>azul cielo claro</strong> (ej. R:107, G:189, B:249).</div>
+        <div class="instruccion" data-n="7">Usa la herramienta <strong>Move</strong> (tecla W) para mover la cámara hasta que el personaje esté centrado en la vista previa (el rectángulo de la cámara que ves en la Scene).</div>
+
+        <div class="insp">
+            <div class="insp-h">Camera (Así debe quedar)</div>
+            <div class="insp-r"><span class="insp-l">Projection</span><span class="insp-v">Orthographic</span></div>
+            <div class="insp-r"><span class="insp-l">Size</span><span class="insp-v hl">1.35 (¡CLAVE!)</span></div>
+            <div class="insp-r"><span class="insp-l">Clear Flags</span><span class="insp-v">Solid Color</span></div>
+            <div class="insp-r"><span class="insp-l">Background Color</span><span class="insp-v" style="color:#6BBDF9">Azul cielo</span></div>
+        </div>
+
+        <div class="alerta alerta-ok"><div class="ai">✅</div><div>Presiona <strong>Play</strong> (▶ arriba). Ahora deberías ver al personaje y el suelo a un tamaño agradable, con pixeles nítidos y un fondo azul cielo.</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 11 ============ -->
+<section class="mod" id="paso11">
+    <div class="mod-hdr"><div class="mod-badge">11</div><div class="mod-title"><h2>Crear las Animaciones del Personaje</h2><span>Idle, caminar este, caminar oeste</span></div></div>
+    <div class="card">
+        <h3>Crear la animación de reposo (Idle):</h3>
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, haz clic derecho ➜ <strong>Create</strong> ➜ <strong>Folder</strong>. Nómbrala <code>Animaciones</code>.</div>
+        <div class="instruccion" data-n="2">Abre la ventana <strong>Animation</strong>: menú superior ➜ <strong>Window</strong> ➜ <strong>Animation</strong> ➜ <strong>Animation</strong>.</div>
+        <div class="instruccion" data-n="3">Haz clic en el objeto <strong>Player</strong> en la Hierarchy.</div>
+        <div class="instruccion" data-n="4">En la ventana <strong>Animation</strong>, haz clic en <strong>Create</strong>. Te pedirá dónde guardar. Navega a la carpeta <code>Animaciones</code>, nombra el archivo como <code>player_descansando</code> y haz clic en <strong>Save</strong>.</div>
+        <div class="instruccion" data-n="5">Ahora en la ventana <strong>Project</strong>, expande <code>Player.png</code> (haz clic en la flechita ▶).</div>
+        <div class="instruccion" data-n="6">Selecciona los sprites que representan al personaje en reposo (ej. el que mira al frente, quieto). Puedes seleccionar varios manteniendo <code>Ctrl</code> presionado mientras haces clic.</div>
+        <div class="instruccion" data-n="7"><strong>Arrastra</strong> esos sprites seleccionados hacia la <strong>línea de tiempo</strong> de la ventana Animation (el área con las líneas verticales).</div>
+
+        <div class="sep"></div>
+        <h3>Crear las animaciones de caminata:</h3>
+        <div class="instruccion" data-n="8">En la ventana <strong>Animation</strong>, haz clic en el menú desplegable que dice <code>player_descansando</code> (arriba a la izquierda de la línea de tiempo).</div>
+        <div class="instruccion" data-n="9">Selecciona <strong>Create New Clip...</strong></div>
+        <div class="instruccion" data-n="10">Guárdalo en la carpeta <code>Animaciones</code> con el nombre <code>player_este</code>. Haz clic en <strong>Save</strong>.</div>
+        <div class="instruccion" data-n="11">Arrastra los sprites del personaje caminando hacia la derecha a la línea de tiempo (igual que antes).</div>
+        <div class="instruccion" data-n="12">Repite los pasos 8-11 para crear <code>player_oeste</code> (caminando izquierda), <code>player_norte</code> (caminando arriba) y <code>player_sur</code> (caminando abajo).</div>
+
+        <div class="alerta alerta-info"><div class="ai">💡</div><div>Cada vez que creas un clip nuevo, Unity lo agrega automáticamente al <strong>Animator Controller</strong> del personaje (un archivo que se creó en la carpeta Animaciones llamado <code>Player.controller</code> o similar).</div></div>
+    </div>
+</section>
+
+<!-- ============ PASO 12 ============ -->
+<section class="mod" id="paso12">
+    <div class="mod-hdr"><div class="mod-badge">12</div><div class="mod-title"><h2>Configurar el Animator Controller (Máquina de Estados)</h2><span>Decirle a Unity cuándo reproducir cada animación</span></div></div>
+    <div class="card">
+        <h3>Abrir el Animator:</h3>
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, busca en la carpeta <code>Controladores</code> (o <code>Animaciones</code>) el archivo <strong>Player.controller</strong> (tiene ícono de diagrama de flujo).</div>
+        <div class="instruccion" data-n="2"><strong>Haz doble clic</strong> sobre <code>Player.controller</code>. Se abrirá la ventana <strong>Animator</strong> mostrando cajas de colores conectadas con flechas.</div>
+
+        <div class="sep"></div>
+        <h3>Crear los parámetros:</h3>
+        <div class="instruccion" data-n="3">En la ventana <strong>Animator</strong>, busca la pestaña <strong>Parameters</strong> en el panel izquierdo. Haz clic en ella.</div>
+        <div class="instruccion" data-n="4">Haz clic en el botón <strong>+</strong> (al lado de la barra de búsqueda de parámetros).</div>
+        <div class="instruccion" data-n="5">Selecciona <strong>Float</strong>. Aparecerá un parámetro nuevo. Escribe <code>x</code> como nombre y presiona <strong>Enter</strong>.</div>
+        <div class="instruccion" data-n="6">Haz clic en <strong>+</strong> otra vez ➜ <strong>Float</strong>. Nómbralo <code>y</code>.</div>
+        <div class="instruccion" data-n="7">Haz clic en <strong>+</strong> otra vez ➜ <strong>Bool</strong>. Nómbralo <code>descansando</code>. Marca su checkbox (que su valor por defecto sea <strong>true</strong>).</div>
+
+        <div class="sep"></div>
+        <h3>Establecer el estado predeterminado:</h3>
+        <div class="instruccion" data-n="8">Haz <strong>clic derecho</strong> sobre la caja naranja (o sobre la caja <code>player_descansando</code>) y selecciona <strong>Set as Layer Default State</strong>. La caja se pondrá naranja. Esto significa que el juego empezará en esta animación.</div>
+
+        <div class="sep"></div>
+        <h3>Crear las transiciones desde "Any State":</h3>
+        <div class="instruccion" data-n="9">Haz <strong>clic derecho</strong> sobre la caja verde que dice <strong>Any State</strong>.</div>
+        <div class="instruccion" data-n="10">Selecciona <strong>Make Transition</strong>. Aparecerá una flecha blanca siguiendo tu ratón.</div>
+        <div class="instruccion" data-n="11">Haz clic sobre la caja <strong>player_este</strong>. La flecha se conectará.</div>
+        <div class="instruccion" data-n="12">Ahora haz <strong>clic sobre esa flecha blanca</strong> que acabas de crear (la línea entre Any State y player_este).</div>
+        <div class="instruccion" data-n="13">En el <strong>Inspector</strong> (derecha), configura la transición:
+            <br>• <strong>Has Exit Time:</strong> <span class="badge b-amber">DESMARCA esta casilla</span>
+            <br>• <strong>Transition Duration (%):</strong> escribe <code>0</code>
+            <br>• <strong>Can Transition To Self:</strong> <span class="badge b-amber">DESMARCA esta casilla</span>
+        </div>
+        <div class="instruccion" data-n="14">Baja hasta la sección <strong>Conditions</strong>. Haz clic en el botón <strong>+</strong>.</div>
+        <div class="instruccion" data-n="15">Configura la condición: <code>x</code> — <code>Greater</code> — <code>0.1</code></div>
+
+        <div class="sep"></div>
+        <h3>Repite para las demás transiciones:</h3>
+        <table class="dt">
+            <thead><tr><th>Desde</th><th>Hacia</th><th>Condición</th></tr></thead>
+            <tbody>
+                <tr><td>Any State</td><td><strong>player_este</strong></td><td><code>x</code> Greater <code>0.1</code></td></tr>
+                <tr><td>Any State</td><td><strong>player_oeste</strong></td><td><code>x</code> Less <code>-0.1</code></td></tr>
+                <tr><td>Any State</td><td><strong>player_norte</strong></td><td><code>y</code> Greater <code>0.1</code></td></tr>
+                <tr><td>Any State</td><td><strong>player_sur</strong></td><td><code>y</code> Less <code>-0.1</code></td></tr>
+                <tr><td>Any State</td><td><strong>player_descansando</strong></td><td><code>descansando</code> = <code>true</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="alerta alerta-danger"><div class="ai">🔴</div><div>En <strong>TODAS</strong> las transiciones, repite el paso 13: desmarcar <em>Has Exit Time</em>, poner Duration en 0 y desmarcar <em>Can Transition To Self</em>. Si no lo haces, las animaciones se sentirán lentas o atoradas.</div></div>
+
+        <div class="instruccion" data-n="16">Haz clic en cada estado de caminata (player_este, player_oeste, etc.) y en el Inspector cambia <strong>Speed</strong> a <code>0.6</code>. Para player_descansando pon <code>0.25</code>.</div>
+    </div>
+</section>
+
+<!-- ============ PASO 13 ============ -->
+<section class="mod" id="paso13">
+    <div class="mod-hdr"><div class="mod-badge">13</div><div class="mod-title"><h2>Configurar el New Input System</h2><span>Las teclas WASD y Espacio</span></div></div>
+    <div class="card">
+        <h3>Instalar el paquete (si no está):</h3>
+        <div class="instruccion" data-n="1">Menú superior ➜ <strong>Window</strong> ➜ <strong>Package Manager</strong>.</div>
+        <div class="instruccion" data-n="2">Arriba a la izquierda, cambia el desplegable de <code>Packages: In Project</code> a <code>Unity Registry</code>.</div>
+        <div class="instruccion" data-n="3">En la barra de búsqueda, escribe <code>Input System</code>.</div>
+        <div class="instruccion" data-n="4">Selecciónalo de la lista y haz clic en <strong>Install</strong>. Si ya dice "Up to date", ya lo tienes.</div>
+        <div class="instruccion" data-n="5">Unity te pedirá reiniciar. Haz clic en <strong>Yes</strong>.</div>
+
+        <div class="sep"></div>
+        <h3>Crear el archivo de Controles:</h3>
+        <div class="instruccion" data-n="6">En la ventana <strong>Project</strong>, navega a la carpeta <code>Scripts</code> (si no existe, créala: clic derecho ➜ Create ➜ Folder ➜ "Scripts").</div>
+        <div class="instruccion" data-n="7">Haz <strong>clic derecho</strong> dentro de la carpeta Scripts ➜ <strong>Create</strong> ➜ <strong>Input Actions</strong>.</div>
+        <div class="instruccion" data-n="8">Nómbralo <code>ControlesPlayer</code> y presiona Enter.</div>
+        <div class="instruccion" data-n="9"><strong>Doble clic</strong> sobre <code>ControlesPlayer</code> para abrirlo. Se abre una ventana de edición de acciones.</div>
+
+        <div class="sep"></div>
+        <h3>Configurar las acciones:</h3>
+        <div class="instruccion" data-n="10">En el panel <strong>Action Maps</strong> (izquierda), haz clic en <strong>+</strong> para crear un mapa. Nómbralo <code>Player</code>.</div>
+        <div class="instruccion" data-n="11">En el panel <strong>Actions</strong> (centro), haz clic en <strong>+</strong> para crear una acción. Nómbrala <code>Move</code>.</div>
+        <div class="instruccion" data-n="12">Con "Move" seleccionada, en el panel <strong>Properties</strong> (derecha), cambia <strong>Action Type</strong> a <code>Value</code> y <strong>Control Type</strong> a <code>Vector2</code>.</div>
+        <div class="instruccion" data-n="13">Haz clic en el <strong>+</strong> al lado de "Move" ➜ selecciona <strong>Add Up/Down/Left/Right Composite</strong>. Se crearán 4 bindings.</div>
+        <div class="instruccion" data-n="14">Haz clic en <strong>Up</strong>. En Properties ➜ Path, haz clic y busca <code>W [Keyboard]</code>.</div>
+        <div class="instruccion" data-n="15">Haz clic en <strong>Down</strong> ➜ Path ➜ <code>S [Keyboard]</code>.</div>
+        <div class="instruccion" data-n="16">Haz clic en <strong>Left</strong> ➜ Path ➜ <code>A [Keyboard]</code>.</div>
+        <div class="instruccion" data-n="17">Haz clic en <strong>Right</strong> ➜ Path ➜ <code>D [Keyboard]</code>.</div>
+        <div class="instruccion" data-n="18">Opcionalmente repite 13-17 para agregar las <strong>flechas del teclado</strong> también.</div>
+        <div class="instruccion" data-n="19">Crea otra acción con <strong>+</strong>. Nómbrala <code>Jump</code>. Action Type: <code>Button</code>.</div>
+        <div class="instruccion" data-n="20">Haz clic en <strong>&lt;No Binding&gt;</strong> debajo de Jump. En Properties ➜ Path, selecciona <code>Space [Keyboard]</code>.</div>
+        <div class="instruccion" data-n="21"><strong>Guarda</strong> con <code>Ctrl + S</code>.</div>
+
+        <div class="sep"></div>
+        <h3>Generar la clase C#:</h3>
+        <div class="instruccion" data-n="22">Cierra la ventana del editor de Input Actions.</div>
+        <div class="instruccion" data-n="23">En la ventana <strong>Project</strong>, haz un solo clic sobre <code>ControlesPlayer</code> para seleccionarlo.</div>
+        <div class="instruccion" data-n="24">En el <strong>Inspector</strong>, busca la casilla <strong>Generate C# Class</strong> y <strong>márcala</strong>.</div>
+        <div class="instruccion" data-n="25">Haz clic en <strong>Apply</strong>. Esto genera un archivo <code>ControlesPlayer.cs</code> automáticamente. ¡No lo edites manualmente!</div>
+    </div>
+</section>
+
+<!-- ============ PASO 14 ============ -->
+<section class="mod" id="paso14">
+    <div class="mod-hdr"><div class="mod-badge">14</div><div class="mod-title"><h2>Crear el Script MovePlayer.cs</h2><span>El cerebro del personaje</span></div></div>
+    <div class="card">
+        <h3>Crear el archivo de script:</h3>
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, navega a la carpeta <code>Scripts</code>.</div>
+        <div class="instruccion" data-n="2">Haz <strong>clic derecho</strong> ➜ <strong>Create</strong> ➜ <strong>C# Script</strong>.</div>
+        <div class="instruccion" data-n="3">Inmediatamente (antes de hacer clic en otro lado) escribe <code>MovePlayer</code> como nombre y presiona <strong>Enter</strong>.</div>
+        <div class="instruccion" data-n="4"><strong>Doble clic</strong> sobre <code>MovePlayer.cs</code> para abrirlo en Visual Studio.</div>
+        <div class="instruccion" data-n="5"><strong>Borra todo</strong> el contenido del archivo y <strong>pega</strong> el siguiente código completo:</div>
+
+        <div class="code-box">
+            <div class="code-hdr"><span>MovePlayer.cs — Copiar y Pegar COMPLETO</span><button class="cbtn" onclick="navigator.clipboard.writeText(document.getElementById('c1').innerText)">📋 Copiar</button></div>
+            <pre id="c1"><code>using UnityEngine;
+using UnityEngine.InputSystem;
+
+[RequireComponent(typeof(Rigidbody2D))]
+public class MovePlayer : MonoBehaviour
+{
+    [Header("Ajustes de Movimiento")]
+    public float velocidad = 2.2f;
+    public float salto = 6.2f;
+
+    [Header("Detección de Suelo")]
+    public LayerMask capaSuelo;
+
+    private ControlesPlayer controlPlayer;
+    private Vector2 movimiento;
+    private Rigidbody2D rb;
+    private Animator animator;
+    private Collider2D col;
+    private float tiempoUltimoSalto = 0f;
+
+    void Awake()
+    {
+        controlPlayer = new ControlesPlayer();
+        rb = GetComponent&lt;Rigidbody2D&gt;();
+        animator = GetComponent&lt;Animator&gt;();
+        col = GetComponent&lt;Collider2D&gt;();
+
+        if (rb != null)
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
+    void Update()
+    {
+        if (controlPlayer != null)
+        {
+            movimiento = controlPlayer.Player.Move.ReadValue&lt;Vector2&gt;();
+            cambioEstado();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (rb != null)
+        {
+            // Horizontal: input × velocidad
+            // Vertical: conservar la velocidad Y (gravedad y salto)
+            rb.linearVelocity = new Vector2(
+                movimiento.x * velocidad,
+                rb.linearVelocity.y
+            );
+        }
+    }
+
+    private void cambioEstado()
+    {
+        if (animator == null) return;
+
+        bool caminando = Mathf.Abs(movimiento.x) &gt; 0.05f;
+        animator.SetFloat("x", movimiento.x);
+        animator.SetFloat("y", 0f);
+        animator.SetBool("descansando", !caminando);
+    }
+
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        Jump();
+    }
+
+    public void Jump()
+    {
+        if (rb == null) return;
+        if (Time.time - tiempoUltimoSalto &lt; 0.2f) return;
+
+        if (EstaEnPiso())
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, salto);
+            tiempoUltimoSalto = Time.time;
+            ChecaColision.isPiso = false;
+        }
+    }
+
+    public bool EstaEnPiso()
+    {
+        if (ChecaColision.isPiso) return true;
+
+        if (col != null)
+        {
+            Bounds b = col.bounds;
+            Vector2 pies = new Vector2(b.center.x, b.min.y);
+            Vector2 sensor = new Vector2(b.size.x * 0.85f, 0.05f);
+            int capa = capaSuelo.value != 0
+                ? capaSuelo.value
+                : ~LayerMask.GetMask("Ignore Raycast");
+            Collider2D hit = Physics2D.OverlapBox(pies, sensor, 0f, capa);
+            if (hit != null &amp;&amp; hit.gameObject != gameObject &amp;&amp; !hit.isTrigger)
+                return true;
+        }
+        return false;
+    }
+
+    void OnEnable()
+    {
+        if (controlPlayer == null)
+            controlPlayer = new ControlesPlayer();
+        controlPlayer.Enable();
+        controlPlayer.Player.Jump.performed += OnJump;
+    }
+
+    void OnDisable()
+    {
+        if (controlPlayer != null)
+        {
+            controlPlayer.Player.Jump.performed -= OnJump;
+            controlPlayer.Disable();
+        }
+    }
+
+    void OnDestroy()
+    {
+        controlPlayer?.Dispose();
+    }
+}</code></pre>
+        </div>
+
+        <div class="instruccion" data-n="6">Guarda el archivo con <code>Ctrl + S</code> y regresa a Unity. Espera a que compile (barra de progreso abajo).</div>
+    </div>
+</section>
+
+<!-- ============ PASO 15 ============ -->
+<section class="mod" id="paso15">
+    <div class="mod-hdr"><div class="mod-badge">15</div><div class="mod-title"><h2>Crear el Script ChecaColision.cs</h2><span>El sensor que impide el doble salto en el aire</span></div></div>
+    <div class="card">
+        <div class="instruccion" data-n="1">En la ventana <strong>Project</strong>, carpeta <code>Scripts</code>, haz <strong>clic derecho</strong> ➜ <strong>Create</strong> ➜ <strong>C# Script</strong>.</div>
+        <div class="instruccion" data-n="2">Nómbralo <code>ChecaColision</code> y presiona Enter.</div>
+        <div class="instruccion" data-n="3"><strong>Doble clic</strong> para abrir. <strong>Borra todo</strong> y pega:</div>
+
+        <div class="code-box">
+            <div class="code-hdr"><span>ChecaColision.cs — Copiar y Pegar COMPLETO</span><button class="cbtn" onclick="navigator.clipboard.writeText(document.getElementById('c2').innerText)">📋 Copiar</button></div>
+            <pre id="c2"><code>using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ChecaColision : MonoBehaviour
+{
+    public static bool isPiso = false;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player")) return;
+        Debug.Log("En Piso");
+        isPiso = true;
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player")) return;
+        isPiso = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player")) return;
+        Debug.Log("No En Piso");
+        isPiso = false;
+    }
+}</code></pre>
+        </div>
+
+        <div class="instruccion" data-n="4">Guarda con <code>Ctrl + S</code> y regresa a Unity.</div>
+    </div>
+</section>
+
+<!-- ============ PASO 16 ============ -->
+<section class="mod" id="paso16">
+    <div class="mod-hdr"><div class="mod-badge">16</div><div class="mod-title"><h2>Conectar los Scripts al Player</h2><span>Arrastrar los scripts al objeto del personaje</span></div></div>
+    <div class="card">
+        <h3>Agregar MovePlayer.cs:</h3>
+        <div class="instruccion" data-n="1">En la <strong>Hierarchy</strong>, haz clic en el objeto <strong>Player</strong>.</div>
+        <div class="instruccion" data-n="2">En la ventana <strong>Project</strong>, busca el archivo <code>MovePlayer.cs</code> en la carpeta <code>Scripts</code>.</div>
+        <div class="instruccion" data-n="3"><strong>Arrastra</strong> <code>MovePlayer.cs</code> desde Project y <strong>suéltalo</strong> encima del <strong>Inspector</strong> (la ventana de la derecha donde ves los componentes del Player). Se agregará como un nuevo componente.</div>
+        <div class="instruccion" data-n="4">Verás los campos <strong>Velocidad</strong> y <strong>Salto</strong> en el Inspector. Verifica que digan <code>2.2</code> y <code>6.2</code>.</div>
+
+        <div class="sep"></div>
+        <h3>Agregar ChecaColision.cs:</h3>
+        <div class="instruccion" data-n="5"><strong>Arrastra</strong> <code>ChecaColision.cs</code> desde Project y <strong>suéltalo</strong> en el Inspector del Player (igual que el anterior).</div>
+
+        <div class="sep"></div>
+        <h3>Verificar el Animator Controller:</h3>
+        <div class="instruccion" data-n="6">En el Inspector del Player, busca el componente <strong>Animator</strong>.</div>
+        <div class="instruccion" data-n="7">En el campo <strong>Controller</strong>, verifica que diga el nombre de tu Animator Controller (ej. <code>Player</code>). Si está vacío, arrastra el archivo <code>Player.controller</code> desde la carpeta <code>Controladores</code> o <code>Animaciones</code> hacia ese campo.</div>
+
+        <div class="insp">
+            <div class="insp-h">Player ➜ Componentes Finales</div>
+            <div class="insp-r"><span class="insp-l">Tag</span><span class="insp-v hl">Player</span></div>
+            <div class="insp-r"><span class="insp-l">Transform</span><span class="insp-v">Position, Rotation, Scale</span></div>
+            <div class="insp-r"><span class="insp-l">Sprite Renderer</span><span class="insp-v">Muestra la imagen</span></div>
+            <div class="insp-r"><span class="insp-l">Animator</span><span class="insp-v">Controller = Player.controller</span></div>
+            <div class="insp-r"><span class="insp-l">Rigidbody 2D</span><span class="insp-v">Mass=1, Gravity=2.5</span></div>
+            <div class="insp-r"><span class="insp-l">Box Collider 2D</span><span class="insp-v">Ajustado al cuerpo</span></div>
+            <div class="insp-r"><span class="insp-l">Move Player (Script)</span><span class="insp-v hl">✅ Agregado</span></div>
+            <div class="insp-r"><span class="insp-l">Checa Colision (Script)</span><span class="insp-v hl">✅ Agregado</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ PRUEBA FINAL ============ -->
+<section class="mod" id="final">
+    <div class="mod-hdr"><div class="mod-badge">✓</div><div class="mod-title"><h2>Prueba Final</h2><span>¡A jugar!</span></div></div>
+    <div class="card" style="border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.04)">
+        <h3 style="color:var(--accent-green)">🎮 Presiona Play y verifica:</h3>
+        <div class="instruccion" data-n="1">Presiona el botón <strong>▶ Play</strong> en la barra superior de Unity.</div>
+        <div class="instruccion" data-n="2">Presiona <strong>A</strong> y <strong>D</strong> (o flechas ← →). El personaje debería moverse a izquierda y derecha con su animación de caminata.</div>
+        <div class="instruccion" data-n="3">Presiona <strong>Barra Espaciadora</strong>. El personaje debería saltar y caer de regreso al suelo.</div>
+        <div class="instruccion" data-n="4">Intenta presionar <strong>Espacio en el aire</strong>. <strong>No debería</strong> poder saltar de nuevo. Un solo salto hasta que toque el suelo.</div>
+        <div class="instruccion" data-n="5">Suelta todas las teclas. El personaje debería cambiar a la animación de reposo (idle).</div>
+        <div class="instruccion" data-n="6">Los píxeles deberían verse <strong>nítidos y cuadrados</strong>, no borrosos.</div>
+
+        <div class="alerta alerta-ok"><div class="ai">🎉</div><div><strong>¡Felicidades!</strong> Si todo funciona, ya tienes un plataformero 2D con movimiento, salto sin bugs, animaciones y gráficos nítidos. Desde aquí puedes agregar enemigos, frutas coleccionables o trampas usando los assets de <em>Pixel Adventure 1</em>.</div></div>
+    </div>
+</section>
+
+</main>
+
+<script>
+const secs=document.querySelectorAll('section,header');
+const nls=document.querySelectorAll('.nl');
+window.addEventListener('scroll',()=>{let c='';secs.forEach(s=>{if(pageYOffset>=s.offsetTop-120)c=s.getAttribute('id')});nls.forEach(l=>{l.classList.remove('active');if(l.getAttribute('href')===`#${c}`)l.classList.add('active')})});
+</script>
+</body>
+</html>
